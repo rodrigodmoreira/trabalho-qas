@@ -4,6 +4,7 @@ import model.Entity;
 import model.User;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public abstract class GenericRepository<T extends Entity> {
     protected ArrayList<T> entities = new ArrayList<>();
@@ -14,15 +15,23 @@ public abstract class GenericRepository<T extends Entity> {
     }
 
     public T get(int id) {
-        return entities.get(id);
+        return entities.stream()
+            .filter(entity -> entity.getId() == id)
+            .findAny()
+            .orElse(null);
     }
 
     public ArrayList<T> get() {
         return entities;
     }
 
-    public boolean remove(int id, User currentUser) {
-        entities.removeIf((entity) -> entity.getId() == id && PermissionManager.checkOwnership(currentUser, entity));
+    public boolean remove(int id, User currentUser) throws Exception {
+        final T match = this.get(id);
+
+        if(match == null) throw new Exception("Entity not found for removal");
+        if(!PermissionManager.checkOwnership(currentUser, match)) throw new Exception("Unauthorized");
+
+        entities.remove(match);
         return true;
     }
 

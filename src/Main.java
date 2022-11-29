@@ -102,7 +102,18 @@ public class Main {
         }
 
         printPadded("Exemplo_3-Remover_relatório");
-//        boolean removalDone = contentRepository.remove();
+        contentRepository.remove(
+                contentRepository.filter("Maybe it's not that bad")
+                        .stream()
+                        .findFirst()
+                        .get()
+                        .getId(), // fetch correct content somehow (here first from listing title is enough)
+                currentUser
+        );
+        System.out.println(contentRepository.filter("Maybe it's not that bad")
+                .stream()
+                .findFirst()
+                .get()  );
     }
 
     public static void main(String[] args) {
