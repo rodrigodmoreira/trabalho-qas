@@ -43,16 +43,4 @@ public class ContentRepository extends GenericRepository<Content> {
 
         return results;
     }
-
-    @Override
-    public boolean edit(int id, Content newEntity, User issuer) {
-        int i = 0;
-        for (Content entity: entities) {
-            if (entity.getId() == id && (entity.getOwner() == issuer || issuer.getRole().isAdmin())) {
-                entities.set(i, newEntity);
-                return true;
-            }
-        }
-        return false;
-    }
 }

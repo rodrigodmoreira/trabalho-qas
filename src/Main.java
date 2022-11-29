@@ -73,7 +73,7 @@ public class Main {
 
 
         printPadded("Exemplo_2.1-Editar_relatório");
-        boolean editDone = contentRepository.edit(
+        contentRepository.edit(
             contentRepository.filter("Real performance are the friends we made along the way")
                 .stream()
                 .findFirst()
@@ -89,17 +89,13 @@ public class Main {
             ),
             currentUser
         );
-        if(!editDone) {
-            throw new Exception("Unauthorized edit");
-        } else {
-            System.out.println(
-                ((Report)contentRepository.filter("Maybe it's not that bad")
-                    .stream()
-                    .findFirst()
-                    .get()
-                ).getText()
-            );
-        }
+        System.out.println(
+            ((Report)contentRepository.filter("Maybe it's not that bad")
+                .stream()
+                .findFirst()
+                .get()
+            ).getText()
+        );
 
         printPadded("Exemplo_3-Remover_relatório");
         contentRepository.remove(

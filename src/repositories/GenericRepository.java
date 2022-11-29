@@ -36,10 +36,11 @@ public abstract class GenericRepository<T extends Entity> {
         return true;
     }
 
-    public boolean edit(int id, T newEntity, User issuer) {
+    public boolean edit(int id, T newEntity, User issuer) throws Exception {
         int i = 0;
         for (T entity: entities) {
-            if (entity.getId() == id && entity.getOwner() == issuer) {
+            if (entity.getId() == id) {
+                if(!issuer.getRole().isAdmin() && issuer != entity.getOwner()) throw new Exception("Unauthorized");
                 entities.set(i, newEntity);
                 return true;
             }
