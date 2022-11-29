@@ -1,9 +1,10 @@
 package model;
 
-public class CompatibilityTool {
+public class CompatibilityTool extends Entity {
     private String name;
 
-    public CompatibilityTool(String name){
+    public CompatibilityTool(String name, User owner){
+        super(owner);
         this.name = name;
     }
 

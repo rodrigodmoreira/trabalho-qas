@@ -15,8 +15,7 @@ public class GameRepository extends GenericRepository<Game>{
     }
 
     public ArrayList<Game> filter(String name) {
-        PermissionManager permissionManager = PermissionManager.getInstance();
-        List<Game> filteredList = entities.stream().filter(
+        List<Game> filteredList = getInstance().entities.stream().filter(
             (game) -> game.getName().contains(name)
         ).toList();
 

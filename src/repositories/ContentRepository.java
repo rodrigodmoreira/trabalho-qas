@@ -1,6 +1,7 @@
 package repositories;
 
 import model.Content;
+import model.User;
 
 import java.util.ArrayList;
 
@@ -13,8 +14,8 @@ public class ContentRepository extends GenericRepository<Content> {
         return singletonRepository;
     }
 
-    public static ArrayList<Content> filter(String title) {
-        ArrayList<Content> results = new ArrayList<Content>();
+    public ArrayList<Content> filter(String title) {
+        ArrayList<Content> results = new ArrayList<>();
 
         for(Content content: getInstance().entities) {
             if (content.getTitle().contains(title)) {
@@ -23,5 +24,29 @@ public class ContentRepository extends GenericRepository<Content> {
         }
 
         return results;
+    }
+
+    public ArrayList<Content> filter(User owner) {
+        ArrayList<Content> results = new ArrayList<>();
+
+        for(Content content: getInstance().entities) {
+            if (content.getOwner() == owner) {
+                results.add(content);
+            }
+        }
+
+        return results;
+    }
+
+    @Override
+    public boolean edit(int id, Content newEntity, User issuer) {
+        int i = 0;
+        for (Content entity: entities) {
+            if (entity.getId() == id && (entity.getOwner() == issuer || issuer.getRole().isAdmin())) {
+                entities.set(i, newEntity);
+                return true;
+            }
+        }
+        return false;
     }
 }

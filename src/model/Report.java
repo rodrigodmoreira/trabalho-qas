@@ -3,15 +3,14 @@ package model;
 public class Report extends Content {
     private String text;
     private float compatibilityRating;
-    private float compatibilityTool;
     private Platform platform;
 
-    public Report(String title, String text, Platform platform, User owner) {
-        super(title, owner);
+    private Game game;
+
+    public Report(String title, String text, Game game, Platform platform, CompatibilityTool compatibilityTool, User owner) {
+        super(title, game, platform, compatibilityTool, owner);
         this.text = text;
         this.compatibilityRating = 0f;
-        this.compatibilityTool = 0f;
-        this.platform = platform;
     }
 
     public String getText() {
@@ -28,21 +27,5 @@ public class Report extends Content {
 
     public void setCompatibilityRating(float compatibilityRating) {
         this.compatibilityRating = compatibilityRating;
-    }
-
-    public float getCompatibilityTool() {
-        return compatibilityTool;
-    }
-
-    public void setCompatibilityTool(float compatibilityTool) {
-        this.compatibilityTool = compatibilityTool;
-    }
-
-    public Platform getPlatform() {
-        return platform;
-    }
-
-    public void setPlatform(Platform platform) {
-        this.platform = platform;
     }
 }

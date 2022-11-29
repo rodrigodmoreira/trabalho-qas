@@ -3,6 +3,7 @@ package repositories;
 import model.User;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class UserRepository extends GenericRepository<User> {
     private static UserRepository singletonRepository = null;
@@ -13,15 +14,19 @@ public class UserRepository extends GenericRepository<User> {
         return singletonRepository;
     }
 
-    public static ArrayList<User> filter(String username) {
-        ArrayList<User> results = new ArrayList<User>();
+    public ArrayList<User> filter(String username) {
 
-        for(User user: getInstance().entities) {
-            if (user.getUsername().contains(username)) {
-                results.add(user);
-            }
-        }
+        List<User> filteredList = getInstance().entities.stream().filter(
+                (user) -> user.getUsername().contains(username)
+        ).toList();
 
-        return results;
+        return new ArrayList<>(filteredList);
+    }
+
+    public User login(String username, String password) {
+        return entities.stream()
+            .filter(user -> user.getUsername().equals(username) && user.getPassword().equals(password))
+            .findAny()
+            .orElse(null);
     }
 }

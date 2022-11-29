@@ -3,6 +3,7 @@ package repositories;
 import model.CompatibilityTool;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class CompatibilityToolRepository extends GenericRepository<CompatibilityTool> {
     private static CompatibilityToolRepository singletonRepository = null;
@@ -13,15 +14,11 @@ public class CompatibilityToolRepository extends GenericRepository<Compatibility
         return singletonRepository;
     }
 
-    public static ArrayList<CompatibilityTool> filter(String name) {
-        ArrayList<CompatibilityTool> results = new ArrayList<>();
+    public ArrayList<CompatibilityTool> filter(String name) {
+        List<CompatibilityTool> filteredList = getInstance().entities.stream().filter(
+                (compatibilityTool) -> compatibilityTool.getName().contains(name)
+        ).toList();
 
-        for(CompatibilityTool compatibilityTool: getInstance().entities) {
-            if (compatibilityTool.getName().contains(name)) {
-                results.add(compatibilityTool);
-            }
-        }
-
-        return results;
+        return new ArrayList<>(filteredList);
     }
 }

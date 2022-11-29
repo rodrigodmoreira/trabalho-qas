@@ -1,9 +1,6 @@
 import model.*;
 import repositories.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-
 public class Main {
     private static CompatibilityToolRepository compatibilityToolRepository;
     private static ContentRepository contentRepository;
@@ -13,16 +10,10 @@ public class Main {
     private static Role roleAdmin;
     private static Role roleUser;
     private static User currentUser;
+
     public static void createSystemResources() {
-        roleAdmin = new Role("Admin", new ArrayList<>(Arrays.asList(OpCode.values())));
-        roleUser = new Role("End-User", new ArrayList<>(Arrays.asList(
-            OpCode.ADD_CONTENT,
-            OpCode.LIST_CONTENT,
-            OpCode.REMOVE_CONTENT,
-            OpCode.ADD_GAME,
-            OpCode.LIST_GAME,
-            OpCode.REMOVE_GAME
-        )));
+        roleAdmin = new Role("Admin", true);
+        roleUser = new Role("End-User");
 
         compatibilityToolRepository = CompatibilityToolRepository.getInstance();
         contentRepository = ContentRepository.getInstance();
@@ -34,8 +25,14 @@ public class Main {
     public static void createMockData() {
         User userAdmin = new User("superadmin", "admin@honestguides.com", "Sup3rS3cretP@ssw0rd", roleAdmin, null);
         userRepository.add(userAdmin);
-        Platform platformWindows = new Platform("WIN10_X64", userAdmin);
+        userRepository.add(new User("anaverageuser", "averageuser@averageemail.com", "@v3r@g3p@ssw0rd", roleAdmin, null));
+
+        Platform platformWindows = new Platform("Windows10_x64", userAdmin);
         platformRepository.add(platformWindows);
+        platformRepository.add(new Platform("Linux_x64", userAdmin));
+
+        compatibilityToolRepository.add(new CompatibilityTool("Proton", userAdmin));
+        compatibilityToolRepository.add(new CompatibilityTool("DXVK", userAdmin));
 
         gameRepository.add(new Game("DefenseOfTheYouth", platformWindows, userAdmin));
         gameRepository.add(new Game("GodOfPeace", platformWindows, userAdmin));
@@ -43,18 +40,69 @@ public class Main {
         gameRepository.add(new Game("AgeOfVillages", platformWindows, userAdmin));
     }
 
+    private static void printPadded(String str) {
+        System.out.println("\n".concat(String.format("%-100s", str).replace(' ', '-')).concat("\n"));
+    }
+
     public static void simulateAccess() throws Exception {
-        currentUser = new User("superadmin", "admin@honestguides.com", "Sup3rS3cretP@ssw0rd", roleAdmin, null);
-        OpCode desiredOperation = OpCode.LIST_GAME;
+        currentUser = userRepository.login("anaverageuser", "@v3r@g3p@ssw0rd");
+        if(currentUser == null) throw new Exception("Invalid username / password");
+        printPadded("Exemplo_0-Login_bem_sucedido");
 
-//        GenericRepository operationRepository = desiredOperation.getRepository();
-//        operationMapping.put(OpCode.ADD_GAME, gameRepository.add);
 
+        printPadded("Exemplo_1-Filtrar_jogos_contendo_'ges'_no_título");
         gameRepository.filter("ges").forEach((game -> System.out.println(game.getName())));
 
-        if (!currentUser.getRole().hasPermission(desiredOperation)) {
-            throw new Exception("Unauthorized");
+
+        printPadded("Exemplo_2-Adicionar_novo_relatório");
+        contentRepository.add(new Report(
+            "Real performance are the friends we made along the way",
+            "D.O.N.T. B.U.Y. I.T.\n\n...awful perfomance issues",
+            gameRepository.filter("GodOfPeace").stream().findFirst().get(),
+            platformRepository.filter("Linux_x64").stream().findFirst().get(),
+            compatibilityToolRepository.filter("DXVK").stream().findFirst().get(),
+            currentUser
+        ));
+        System.out.println(
+            ((Report)contentRepository.filter(currentUser)
+                .stream()
+                .findFirst()
+                .get()
+            ).getText()
+        );
+
+
+        printPadded("Exemplo_2.1-Editar_relatório");
+        boolean editDone = contentRepository.edit(
+            contentRepository.filter("Real performance are the friends we made along the way")
+                .stream()
+                .findFirst()
+                .get()
+                .getId(), // fetch correct content somehow (here first from listing title is enough)
+            new Report(
+                "Maybe it's not that bad",
+                "After DXVK update, thing's got better. Noice\n⣀⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n⣿⣿⣿⣶⣤⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n⠸⣿⣿⣿⠀⠙⠻⣦⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n⠀⢹⣿⣿⠀⠀⠀⠈⠙⠷⣦⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⡀\n⠀⠀⠹⣿⠀⠀⠀⠀⠀⠀⠈⠙⢷⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣤⡤⠶⣶⣿⣿⣿⠃\n⠀⠀⠀⠹⣯⠀⠀⠀⠀⠀⠀⠀⠀⠙⢷⣄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣤⡶⠞⠛⠉⠁⠀⠀⣿⣿⣿⠃⠀\n⠀⠀⠀⠀⠹⣯⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⠻⣦⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣤⠶⠞⠋⠉⠀⠀⠀⠀⠀⠀⠀⣸⣿⡿⠃⠀⠀\n⠀⠀⠀⠀⠀⠘⢷⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠓⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠲⠶⠤⢤⠶⠚⠋⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⢰⣿⠟⠁⠀⠀⠀\n⠀⠀⠀⠀⠀⠀⠈⢻⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ ⠀⠀⠀⠀⠀⠀⣰⡿⠋⠀⠀⠀⠀⠀\n⠀⠀⠀⠀⠀⠀⠀⠀⠹⣦⣀⣴⠟⠂⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡴⠋⠀⠀⠀⠀⠀⠀⠀\n⠀⠀⠀⠀⠀⠀⠀⠀⠀⢨⡿⠓⠂⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣴⡀⠀⠀⣠⡶⠟⠁⠀⠀⠀⠀⠀⠀⠀⠀\n⠀⠀⠀⠀⠀⠀⠀⠀⢀⡾⠁⠀⠀⠀⠀⣀⣄⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠻⣶⠞⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n⠀⠀⠀⠀⠀⠀⠀⢀⣾⠁⠀⠀⠀⠀⣼⡏⣹⣿⣧⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⡶⢶⣶⡄⠀⠀⠀⠀⠀⠀⢹⣆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n⠀⠀⠀⠀⠀⠀⠀⣸⠃⠀⠀⠀⠀⠀⢻⣿⣿⣿⠏⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⣷⣾⣿⡿⠀⠀⠀⠀⠀⠀⠀⢻⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n⠀⠀⠀⠀⠀⠀⢰⡏⠀⠀⠀⠀⠀⠀⠀⠉⠉⠁⠀⠀⠀⠀⣤⣀⣀⠀⠀⠀⠀⠀⠀⠘⠻⠿⠛⠁⠀⠀⠀⠀⠀⠀⠀⠘⣷⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n⠀⠀⠀⠀⠀⠀⣾⢠⣴⣿⣿⣶⣤⠀⠀⠀⠀⠀⠀⠀⠀⠀⠛⠛⠛⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡀⠀⠀⠀⠀⠀⢻⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n⠀⠀⠀⠀⠀⠀⡇⣿⣿⣿⣿⣿⣿⠇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣴⣿⣿⣿⣿⣶⡀⠀⠀⠸⣇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n⠀⠀⠀⠀⠀⠀⣧⠈⠻⠿⠿⠟⠋⠀⠀⠀⠀⠀⠀⠀⢀⣾⠟⠋⠉⠙⠻⣦⠀⠀⠀⠀⠀⠀⠸⣿⣿⣿⣿⣿⣿⡇⠀⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n⠀⠀⠀⠀⠀⠀⢻⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣇⠀⠀ ⠀⠀⠀  ⣿⠀⠀⠀⠀⠀⠀⠀⠙⠿⠿⠿⠿⠛⠀⠀⢿⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀\n⠀⠀⠀⠀⠀⠀⠘⣷⠂⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⠷⣤⣀⣠⣴⠟⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⡇⠀⠀⠀",
+                gameRepository.filter("GodOfPeace").stream().findFirst().get(),
+                platformRepository.filter("Linux_x64").stream().findFirst().get(),
+                compatibilityToolRepository.filter("DXVK").stream().findFirst().get(),
+                currentUser
+            ),
+            currentUser
+        );
+        if(!editDone) {
+            throw new Exception("Unauthorized edit");
+        } else {
+            System.out.println(
+                ((Report)contentRepository.filter("Maybe it's not that bad")
+                    .stream()
+                    .findFirst()
+                    .get()
+                ).getText()
+            );
         }
+
+        printPadded("Exemplo_3-Remover_relatório");
+//        boolean removalDone = contentRepository.remove();
     }
 
     public static void main(String[] args) {

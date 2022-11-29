@@ -1,10 +1,9 @@
 package repositories;
 
-import model.CompatibilityTool;
-import model.Game;
 import model.Platform;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class PlatformRepository extends GenericRepository<Platform> {
     private static PlatformRepository singletonRepository = null;
@@ -15,15 +14,12 @@ public class PlatformRepository extends GenericRepository<Platform> {
         return singletonRepository;
     }
 
-    public static ArrayList<Platform> filter(String name) {
-        ArrayList<Platform> results = new ArrayList<>();
+    public ArrayList<Platform> filter(String name) {
 
-        for(Platform platform: getInstance().entities) {
-            if (platform.getName().contains(name)) {
-                results.add(platform);
-            }
-        }
+        List<Platform> filteredList = getInstance().entities.stream().filter(
+                (platform) -> platform.getName().contains(name)
+        ).toList();
 
-        return results;
+        return new ArrayList<>(filteredList);
     }
 }

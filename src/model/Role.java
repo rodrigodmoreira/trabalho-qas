@@ -1,18 +1,18 @@
 package model;
 
-import java.util.ArrayList;
-
 public class Role {
     private String name;
-    private ArrayList<OpCode> permissions;
 
-    public Role(String name, ArrayList<OpCode> permissions) {
+    private boolean isAdmin;
+
+    public Role(String name) {
         this.name = name;
-        this.permissions = permissions;
+        this.isAdmin = false;
     }
 
-    public boolean hasPermission(OpCode operation) {
-        return permissions.contains(operation);
+    public Role(String name, boolean isAdmin) {
+        this.name = name;
+        this.isAdmin = isAdmin;
     }
 
     public String getName() {
@@ -23,11 +23,5 @@ public class Role {
         this.name = name;
     }
 
-    public ArrayList<OpCode> getPermissions() {
-        return permissions;
-    }
-
-    public void setPermissions(ArrayList<OpCode> permissions) {
-        this.permissions = permissions;
-    }
+    public boolean isAdmin() { return isAdmin; }
 }
