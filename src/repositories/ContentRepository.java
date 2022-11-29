@@ -14,10 +14,16 @@ public class ContentRepository extends GenericRepository<Content> {
         return singletonRepository;
     }
 
+    // Overriding method since every user can create contents
+    public boolean add(Content entity, User currentUser) {
+        entities.add(entity);
+        return true;
+    }
+
     public ArrayList<Content> filter(String title) {
         ArrayList<Content> results = new ArrayList<>();
 
-        for(Content content: getInstance().entities) {
+        for(Content content : getInstance().entities) {
             if (content.getTitle().contains(title)) {
                 results.add(content);
             }

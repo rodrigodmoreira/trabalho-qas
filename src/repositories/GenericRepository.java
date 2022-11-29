@@ -9,7 +9,8 @@ import java.util.List;
 public abstract class GenericRepository<T extends Entity> {
     protected ArrayList<T> entities = new ArrayList<>();
 
-    public boolean add(T entity) {
+    public boolean add(T entity, User currentUser) throws Exception {
+        if(!currentUser.getRole().isAdmin()) throw new Exception("Unauthorized");
         entities.add(entity);
         return true;
     }

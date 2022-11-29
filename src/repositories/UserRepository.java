@@ -17,7 +17,7 @@ public class UserRepository extends GenericRepository<User> {
     public ArrayList<User> filter(String username) {
 
         List<User> filteredList = getInstance().entities.stream().filter(
-                (user) -> user.getUsername().contains(username)
+            (user) -> user.getUsername().contains(username)
         ).toList();
 
         return new ArrayList<>(filteredList);

@@ -22,22 +22,22 @@ public class Main {
         userRepository = UserRepository.getInstance();
     }
 
-    public static void createMockData() {
+    public static void createMockData() throws Exception {
         User userAdmin = new User("superadmin", "admin@honestguides.com", "Sup3rS3cretP@ssw0rd", roleAdmin, null);
-        userRepository.add(userAdmin);
-        userRepository.add(new User("anaverageuser", "averageuser@averageemail.com", "@v3r@g3p@ssw0rd", roleAdmin, null));
+        userRepository.add(userAdmin, userAdmin);
+        userRepository.add(new User("anaverageuser", "averageuser@averageemail.com", "@v3r@g3p@ssw0rd", roleUser, null), userAdmin);
 
         Platform platformWindows = new Platform("Windows10_x64", userAdmin);
-        platformRepository.add(platformWindows);
-        platformRepository.add(new Platform("Linux_x64", userAdmin));
+        platformRepository.add(platformWindows, userAdmin);
+        platformRepository.add(new Platform("Linux_x64", userAdmin), userAdmin);
 
-        compatibilityToolRepository.add(new CompatibilityTool("Proton", userAdmin));
-        compatibilityToolRepository.add(new CompatibilityTool("DXVK", userAdmin));
+        compatibilityToolRepository.add(new CompatibilityTool("Proton", userAdmin), userAdmin);
+        compatibilityToolRepository.add(new CompatibilityTool("DXVK", userAdmin), userAdmin);
 
-        gameRepository.add(new Game("DefenseOfTheYouth", platformWindows, userAdmin));
-        gameRepository.add(new Game("GodOfPeace", platformWindows, userAdmin));
-        gameRepository.add(new Game("LeagueOfOrdinaries", platformWindows, userAdmin));
-        gameRepository.add(new Game("AgeOfVillages", platformWindows, userAdmin));
+        gameRepository.add(new Game("DefenseOfTheYouth", platformWindows, userAdmin), userAdmin);
+        gameRepository.add(new Game("GodOfPeace", platformWindows, userAdmin), userAdmin);
+        gameRepository.add(new Game("LeagueOfOrdinaries", platformWindows, userAdmin), userAdmin);
+        gameRepository.add(new Game("AgeOfVillages", platformWindows, userAdmin), userAdmin);
     }
 
     private static void printPadded(String str) {
@@ -62,7 +62,7 @@ public class Main {
             platformRepository.filter("Linux_x64").stream().findFirst().get(),
             compatibilityToolRepository.filter("DXVK").stream().findFirst().get(),
             currentUser
-        ));
+        ), currentUser);
         System.out.println(
             ((Report)contentRepository.filter(currentUser)
                 .stream()
@@ -118,9 +118,9 @@ public class Main {
 
     public static void main(String[] args) {
         createSystemResources();
-        createMockData();
 
         try {
+            createMockData();
             simulateAccess();
         } catch (Exception exception) {
             System.out.println(exception.getMessage());
